@@ -1,6 +1,7 @@
 package com.yandex;
 
 import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Test;
 
@@ -33,17 +34,21 @@ public class ChangeUserDataTest {
     @DisplayName("Неуспешная смена данных пользователя без регистрации")
     public void failedChangeUserDataTestWithNoAuth() {
         registration.create(userData);
-        changeUserData.updateUserData(registration.response.path("accessToken").toString().substring(7), userDataWithNoName);
-        changeUserData.response.then().assertThat().statusCode(401);
+        changeUserData.updateUserData("Token", userDataWithNoName);
+        changeUserData.response.then().assertThat().statusCode(403);
+        changeUserData.response.path("message").equals("You should be authorised");
+        changeUserData.response.path("success").equals("failed");
     }
 
     @Test
-    @DisplayName("Неуспешная смена данных пользователя а те же самые данные")
+    @DisplayName("Неуспешная смена данных пользователя на те же самые данные")
     public void failedChangeUserDataTestWithSameEmail() {
         registration.create(userData);
-        UserDataWithNoName userDataWithNoName_2 = new UserDataWithNoName(userData.email, userData.password);
-        changeUserData.updateUserData(registration.response.path("accessToken").toString().substring(7), userDataWithNoName_2);
+        UserEmailAndName userEmailAndName = new UserEmailAndName("mih@gmail.ru","mih");
+        changeUserData.updateUserDataSameMail(registration.response.path("accessToken").toString().substring(7), userEmailAndName);
         changeUserData.response.then().assertThat().statusCode(403);
+        changeUserData.response.path("message").equals("User with such email already exists");
+        changeUserData.response.path("success").equals("failed");
     }
     @After
     public void deleteUser() {

@@ -22,4 +22,13 @@ public class ChangeUserData extends RestAssuredClient {
                 .when()
                 .patch(UPD_USERDATA_PATH);
     }
+    @Step
+    public Response updateUserDataSameMail(String token, UserEmailAndName userEmailAndName) {
+        return response = given()
+                .spec(getBaseSpec())
+                .auth().oauth2(token)
+                .body(userEmailAndName)
+                .when()
+                .patch(UPD_USERDATA_PATH);
+    }
 }

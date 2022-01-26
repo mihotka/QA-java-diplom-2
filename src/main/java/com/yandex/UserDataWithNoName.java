@@ -12,7 +12,6 @@ public class UserDataWithNoName {
         this.email = email;
         this.name= name;
     }
-
     public static UserDataWithNoName getRandom() {
         final String email = "alrt" +  RandomStringUtils.random(5) + "@gmail.su";
         final String name = RandomStringUtils.randomAlphabetic(10).toLowerCase(Locale.ROOT);

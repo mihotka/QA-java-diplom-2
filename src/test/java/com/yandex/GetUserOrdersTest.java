@@ -1,7 +1,7 @@
 package com.yandex;
 
 import io.qameta.allure.junit4.DisplayName;
-import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 public class GetUserOrdersTest {
 
     UserData userData = UserData.getRandom();
-    Login login = new Login();
-    LoginData loginData = new LoginData(userData.email, userData.password);
     Registration registration = new Registration();
     DeleteUser deleteUser = new DeleteUser();
     UserOrders userOrders = new UserOrders();
@@ -19,29 +17,35 @@ public class GetUserOrdersTest {
     @Test
     @DisplayName("Получение всех заказов пользователя с авторизацией")
     public void getAllUserOrdersWithAuth() {
-        registration.create(userData);
-        login.login(loginData);
-        createOrder.createOrder("61c0c5a71d1f82001bdaaa6f");
+        registration.create(UserData.getRandom());
+        String token = registration.response.path("accessToken").toString().substring(7);
+        createOrder.createOrder("61c0c5a71d1f82001bdaaa6f", token);
+        createOrder.response.then().assertThat().statusCode(200);
         String orderNumber = createOrder.response.body().path("order.number").toString();
-        userOrders.getAllUserOrders();
+        userOrders.getAllUserOrders(token);
         userOrders.response.then().assertThat().statusCode(200);
-        String userOrderNumber = userOrders.response.body().path("order.number").toString();
+        userOrders.response.path("success").equals(true);
+        Assert.assertNotNull(userOrders.response.path("total"));
+        Assert.assertNotNull(userOrders.response.path("totalToday"));
+        Assert.assertNotNull(userOrders.response.path("_id"));
+        Assert.assertNotNull(userOrders.response.path("status"));
+        Assert.assertNotNull(userOrders.response.path("createdAt"));
+        Assert.assertNotNull(userOrders.response.path("updatedAt"));
+        String userOrderNumber = userOrders.response.path("order.number").toString();
         assertEquals(orderNumber, userOrderNumber);
+        deleteUser.delete(token);
     }
 
     @Test
     @DisplayName("Получение всех заказов пользователя без авторизации")
     public void getAllUserOrdersWithNoAuth() {
         registration.create(userData);
-        login.login(loginData);
-        createOrder.createOrder("61c0c5a71d1f82001bdaaa6f");
-        String orderNumber = createOrder.response.body().path("order.number").toString();
-        userOrders.getAllUserOrders();
-        userOrders.response.then().assertThat().statusCode(400);
+        String token = registration.response.path("accessToken").toString().substring(7);
+        createOrder.createOrder("61c0c5a71d1f82001bdaaa6f", registration.response.path("accessToken").toString().substring(7));
+        userOrders.getAllUserOrdersWitnNOAuth();
+        userOrders.response.then().assertThat().statusCode(401);
+        assertEquals("You should be authorised", userOrders.response.path("message"));
+        deleteUser.delete(token);
     }
 
-    @After
-    public void delete() {
-        deleteUser.delete(registration.response.path("accessToken").toString().substring(7));
-    }
 }

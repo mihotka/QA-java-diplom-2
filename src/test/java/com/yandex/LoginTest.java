@@ -4,6 +4,8 @@ import io.qameta.allure.Description;
 import org.junit.After;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+
 public class LoginTest {
     Registration registration = new Registration();
     Login login = new Login();
@@ -17,6 +19,10 @@ public class LoginTest {
         registration.create(userData);
         login.login(loginData);
         login.response.then().assertThat().statusCode(200);
+        login.response.path("success").equals(true);
+        login.response.path("user.email").equals(userData.email);
+        login.response.path("user.name").equals(userData.name);
+        assertNotNull(login.response.path("accessToken"));
     }
 
     @Test
@@ -27,6 +33,7 @@ public class LoginTest {
         registration.create(userData);
         login.login(loginData);
         login.response.then().assertThat().statusCode(401);
+        login.response.path("message").equals("email or password are incorrect");
     }
 
     @Test
@@ -37,6 +44,7 @@ public class LoginTest {
         registration.create(userData);
         login.login(loginData);
         login.response.then().assertThat().statusCode(401);
+        login.response.path("message").equals("email or password are incorrect");
     }
 
     @After

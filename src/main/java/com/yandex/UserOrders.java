@@ -10,10 +10,17 @@ public class UserOrders extends RestAssuredClient{
 
     Response response;
 
-    public Response getAllUserOrders() {
+    public Response getAllUserOrdersWitnNOAuth() {
         return response = given()
                 .spec(getBaseSpec())
                 .when()
-                .post(USERORDERS_PATH);
+                .get(USERORDERS_PATH);
+    }
+    public Response getAllUserOrders(String token) {
+        return response = given()
+                .spec(getBaseSpec())
+                .auth().oauth2(token)
+                .when()
+                .get(USERORDERS_PATH);
     }
 }
