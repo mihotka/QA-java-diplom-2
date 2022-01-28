@@ -1,8 +1,6 @@
 package com.yandex;
 
 import io.qameta.allure.junit4.DisplayName;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class CreateOrderTest {
@@ -29,10 +27,6 @@ public class CreateOrderTest {
         createOrder.response.then().assertThat().statusCode(400);
         createOrder.response.path("message").equals("Ingredient ids must be provided");
         createOrder.response.path("success").equals(false);
-    }
-
-    @After
-    public void delete() {
         deleteUser.delete(registration.response.path("accessToken").toString().substring(7));
     }
 }
