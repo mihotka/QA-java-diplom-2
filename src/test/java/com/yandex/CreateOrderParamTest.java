@@ -36,10 +36,10 @@ public class CreateOrderParamTest extends RestAssuredClient{
     @DisplayName("Параметризироованный тест на создание заказа: валидный ингредиент, без ингредиента, неверный ингредиент")
     public void validCreateOrderWithAuthTest(){
         registration.create(userData);
-        createOrder.createOrder(ingredientName,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxZjA0MGQwOTk5ZmIyMDAxYjZjMjc5OSIsImlhdCI6MTY0MzIzNjE5MywiZXhwIjoxNjQzMjM3MzkzfQ.jwf9o-cdyds62bfdSWBIDAAIb1g1sdsZMR5qLDpyXRc" );
+        createOrder.createOrder(ingredientName,registration.response.path("accessToken").toString().substring(7));
         createOrder.response.then().assertThat().statusCode(expected);
     }
-   /* @After
+    @After
     public void deleteUser() {
         if (registration.response.body().path("success").equals(false)) {
             createOrder.response.path("message").equals("Internal Server Error.");
@@ -50,5 +50,5 @@ public class CreateOrderParamTest extends RestAssuredClient{
         Assert.assertNotNull(createOrder.response.path("order.number"));
         registration.response.then().assertThat().statusCode(200);
         deleteUser.delete(registration.response.path("accessToken").toString().substring(7));
-    }*/
+    }
 }

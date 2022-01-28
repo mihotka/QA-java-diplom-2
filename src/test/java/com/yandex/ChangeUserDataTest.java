@@ -44,7 +44,9 @@ public class ChangeUserDataTest {
     @DisplayName("Неуспешная смена данных пользователя на те же самые данные")
     public void failedChangeUserDataTestWithSameEmail() {
         registration.create(userData);
-        UserEmailAndName userEmailAndName = new UserEmailAndName("mih@gmail.ru","mih");
+        String name = registration.response.path("name");
+        String email = registration.response.path("email");
+        UserEmailAndName userEmailAndName = new UserEmailAndName(email, name);
         changeUserData.updateUserDataSameMail(registration.response.path("accessToken").toString().substring(7), userEmailAndName);
         changeUserData.response.then().assertThat().statusCode(403);
         changeUserData.response.path("message").equals("User with such email already exists");
