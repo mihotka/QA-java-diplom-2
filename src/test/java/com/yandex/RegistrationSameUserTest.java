@@ -18,13 +18,13 @@ public class RegistrationSameUserTest {
         DeleteUser deleteUser = new DeleteUser();
 
         registration.create(userData);
-        assertEquals(registration.response.body().path("success"), true);
+        assertEquals("Не совпадает success/fail в теле ответа", true, registration.response.body().path("success"));
         String token = registration.response.path("accessToken").toString().substring(7);
 
         Response response2 = registration.create(userData);
         response2.then().statusCode(403);
-        assertEquals(response2.body().path("success"), false);
-        response2.body().path("message").equals("User already exists");
+        assertEquals("Не совпадает success/fail в теле ответа", false, response2.body().path("success"));
+        assertEquals("Сообщение об ошибке не совпадает","User already exists",response2.body().path("message"));
 
         deleteUser.delete(token);
     }

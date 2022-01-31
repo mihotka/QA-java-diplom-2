@@ -24,15 +24,15 @@ public class GetUserOrdersTest {
         String orderNumber = createOrder.response.body().path("order.number").toString();
         userOrders.getAllUserOrders(token);
         userOrders.response.then().assertThat().statusCode(200);
-        userOrders.response.path("success").equals(true);
-        Assert.assertNotNull(userOrders.response.path("total"));
-        Assert.assertNotNull(userOrders.response.path("totalToday"));
-        Assert.assertNotNull(userOrders.response.path("_id"));
-        Assert.assertNotNull(userOrders.response.path("status"));
-        Assert.assertNotNull(userOrders.response.path("createdAt"));
-        Assert.assertNotNull(userOrders.response.path("updatedAt"));
+        assertEquals("Не совпадает success/fail в теле ответа",true, userOrders.response.path("success"));
+        Assert.assertNotNull("В ответе отсутствует общее количество заказов", userOrders.response.path("total"));
+        Assert.assertNotNull("В ответе отсутствует общее количество заказов за день",userOrders.response.path("totalToday"));
+        Assert.assertNotNull("В ответе отсутствует айди",userOrders.response.path("_id"));
+        Assert.assertNotNull("В ответе отсутствует статус заказа",userOrders.response.path("status"));
+        Assert.assertNotNull("В ответе отсутствует время создание заказа",userOrders.response.path("createdAt"));
+        Assert.assertNotNull("В ответе отсутствует время обновления статуса заказа",userOrders.response.path("updatedAt"));
         String userOrderNumber = userOrders.response.path("order.number").toString();
-        assertEquals(orderNumber, userOrderNumber);
+        assertEquals("Номера заквзов не совпадают",orderNumber, userOrderNumber);
         deleteUser.delete(token);
     }
 
@@ -44,7 +44,7 @@ public class GetUserOrdersTest {
         createOrder.createOrder("61c0c5a71d1f82001bdaaa6f", registration.response.path("accessToken").toString().substring(7));
         userOrders.getAllUserOrdersWitnNOAuth();
         userOrders.response.then().assertThat().statusCode(401);
-        assertEquals("You should be authorised", userOrders.response.path("message"));
+        assertEquals("Не совпадает сообщение об ошибке","You should be authorised", userOrders.response.path("message"));
         deleteUser.delete(token);
     }
 

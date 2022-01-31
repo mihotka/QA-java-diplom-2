@@ -40,18 +40,18 @@ public class RegistrationParamTest {
     public void failedRegistrationWithNullMail() {
         UserData userData = new UserData(mail, password, name);
         registration.create(userData);
-        assertEquals(registration.response.body().path("success"), expected);
+        assertEquals("Не совпадает success/fail в теле ответа", expected, registration.response.body().path("success"));
 
         if (registration.response.body().path("success").equals(false)) {
-            registration.response.path("message").equals("Email, password and name are required fields");
+            assertEquals("Не совпадает сообщение об ошибке", "Email, password and name are required fields", registration.response.path("message"));
             registration.response.then().assertThat().statusCode(403);
             return;
         } else {
             registration.response.then().assertThat().statusCode(200);
-            registration.response.path("user.email").equals(userData.email);
-            registration.response.path("user.name").equals(userData.name);
-            assertNotNull(registration.response.path("accessToken"));
-            assertNotNull(registration.response.path("refreshToken"));
+            assertEquals("В теле ответа отсутствует поле мейла", userData.email, registration.response.path("user.email"));
+            assertEquals("В теле ответа отсутствует поле мейла", userData.name, registration.response.path("user.name"));
+            assertNotNull("Отсутствутет accessToken", registration.response.path("accessToken"));
+            assertNotNull("Отсутствутет refreshToken", registration.response.path("refreshToken"));
             deleteUser.delete(registration.response.path("accessToken").toString().substring(7));
         }
     }

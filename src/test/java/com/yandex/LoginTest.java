@@ -4,6 +4,9 @@ import io.qameta.allure.Description;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class LoginTest {
@@ -19,10 +22,10 @@ public class LoginTest {
         registration.create(userData);
         login.login(loginData);
         login.response.then().assertThat().statusCode(200);
-        login.response.path("success").equals(true);
-        login.response.path("user.email").equals(userData.email);
-        login.response.path("user.name").equals(userData.name);
-        assertNotNull(login.response.path("accessToken"));
+        assertEquals("Не совпадает success/fail в теле ответа", true, login.response.path("success"));
+        assertEquals("В теле ответа отсутствует поле мейла", userData.email.toLowerCase(Locale.ROOT), login.response.path("user.email"));
+        assertEquals("В теле ответа отсутствует поле имени", userData.name, login.response.path("user.name"));
+        assertNotNull("Отсутствует accessToken", login.response.path("accessToken"));
     }
 
     @Test
@@ -33,7 +36,7 @@ public class LoginTest {
         registration.create(userData);
         login.login(loginData);
         login.response.then().assertThat().statusCode(401);
-        login.response.path("message").equals("email or password are incorrect");
+        assertEquals("Не совпадает сообщение об ошибке", "email or password are incorrect", login.response.path("message"));
     }
 
     @Test
@@ -44,11 +47,11 @@ public class LoginTest {
         registration.create(userData);
         login.login(loginData);
         login.response.then().assertThat().statusCode(401);
-        login.response.path("message").equals("email or password are incorrect");
+        assertEquals("Не совпадает сообщение об ошибке", "email or password are incorrect", login.response.path("message"));
     }
 
     @After
-    public void delete () {
+    public void delete() {
         deleteUser.delete(registration.response.path("accessToken").toString().substring(7));
     }
 }
